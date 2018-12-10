@@ -96,6 +96,7 @@ class Agent:
 		else:
 			# Choose the best action based on current values of states:
 			best_value = -1
+			# Find the best next state value:
 			next_move = None
 			for move in possible_moves:
 				current_state[move[0], move[1]] = self.sym
@@ -109,8 +110,7 @@ class Agent:
 
 	def update_state_history(self, env):
 		# NOTE => Only do it after an action is taken!
-		self.state_history.append(
-			state_to_idx(env.get_state()))
+		self.state_history.append(state_to_idx(env.get_state()))
 
 	def update(self, env):
 		# Update the values:
@@ -152,6 +152,7 @@ class Environment:
 			return 0
 
 	def make_move(self, i, j, sym):
+		# Put "sym" at the (i,j)-th cell:
 		if self.board[i,j] == 0:
 			self.board[i,j] = sym
 			return True
@@ -160,9 +161,12 @@ class Environment:
 			return False
 
 	def get_state(self):
+		# Returns a copy of the current state:
 		return np.copy(self.board)
 
 	def game_ended(self):
+		# Checks if the game has ended: If yes, then update self.ended and
+		# self.winner.
 		status = check(self.board)
 		if status != 0:
 			self.ended = True
@@ -171,11 +175,12 @@ class Environment:
 		return self.ended
 
 	def display_board(self):
+		# Displays the board nicely:
 		symbols = [' ', 'x', 'o']
-		hline = '-----------------'
+		hline = '------------------'
 		print(hline)
 		for i in range(3):
-			line = ' '
+			line = '| '
 			for j in range(3):
 				line = line + symbols[self.board[i,j]] + '  |  '
 			print(line)
@@ -199,7 +204,7 @@ def training_iteration(p1, p2, env):
 
 def play():
 	while True:
-		first = input('Do you want to make the first move? [yes/no] ')
+		first = input('Do you want to make the first move? [yes/no] ').lower()
 		if first == 'yes' or 'no':
 			break
 		else:
@@ -246,9 +251,10 @@ def train():
 	# Train the agent:
 	p1 = Agent(sym=1)
 	p2 = Agent(sym=2)
-	T = 20000
+	T = 20000 # No. of episodes
 	for t in range(T):
 		training_iteration(p1,p2, Environment())
+	# Save the values learnt:
 	p1.save_values('player1')
 	p2.save_values('player2')
 
